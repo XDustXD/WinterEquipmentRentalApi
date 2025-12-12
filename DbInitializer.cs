@@ -1,5 +1,3 @@
-using System;
-using Microsoft.Build.Experimental.ProjectCache;
 using WinterEquipmentRentalApi.Models;
 
 namespace WinterEquipmentRentalApi;
@@ -8,9 +6,14 @@ public class DbInitializer
 {
     public static async Task SeedData(RentDbContext context)
     {
-        if (context.Clients.Any() ||
-            context.RentalItems.Any() ||
-            context.Rentals.Any()) return;
+        await SeedDataClients(context);
+        await SeedDataRentalItems(context);
+        await SeedDataRentals(context);
+    }
+
+    public static async Task SeedDataClients(RentDbContext context)
+    {
+        if (context.Clients.Any()) return;
 
         var clients = new List<Client>
         {
@@ -63,6 +66,16 @@ public class DbInitializer
                 PhoneNumber = "+79045814258"
             },
         };
+
+        context.Clients.AddRange(clients);
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedDataRentalItems(RentDbContext context)
+    {
+        if (context.RentalItems.Any()) return;
+        
         var rentalItems = new List<RentalItem>
         {
             new()
@@ -107,6 +120,19 @@ public class DbInitializer
                 Price = 300m
             }
         };
+
+        context.RentalItems.AddRange(rentalItems);
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedDataRentals(RentDbContext context)
+    {
+        if (context.Rentals.Any()) return;
+
+        var clients = context.Clients.ToList();
+        var rentalItems = context.RentalItems.ToList();
+
         var rentals = new List<Rental>
         {
             new() {
@@ -163,8 +189,6 @@ public class DbInitializer
             }
         };
 
-        context.Clients.AddRange(clients);
-        context.RentalItems.AddRange(rentalItems);
         context.Rentals.AddRange(rentals);
 
         await context.SaveChangesAsync();

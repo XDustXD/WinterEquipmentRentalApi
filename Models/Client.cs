@@ -4,7 +4,7 @@ namespace WinterEquipmentRentalApi.Models;
 
 public class Client
 {
-    public string Id { get; set; } = new Guid().ToString();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     [Phone]

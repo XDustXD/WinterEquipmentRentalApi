@@ -2,7 +2,7 @@ namespace WinterEquipmentRentalApi.Models;
 
 public class Rental
 {
-    public string Id { get; set; } = new Guid().ToString();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public int RentHours { get; set; }
     public decimal Cost { get; set; }
 
