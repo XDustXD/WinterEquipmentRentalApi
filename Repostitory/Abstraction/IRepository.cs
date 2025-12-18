@@ -1,4 +1,4 @@
-namespace WinterEquipmentRentalApi.Repostitory;
+namespace WinterEquipmentRentalApi.Repostitory.Abstraction;
 
 public interface IRepository<T>
 {

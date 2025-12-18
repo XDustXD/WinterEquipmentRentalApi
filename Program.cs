@@ -10,6 +10,9 @@ builder.Services.AddDbContext<RentDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConnection")));
 
 builder.Services.AddScoped<IClientRepostitory, ClientRepository>();
+builder.Services.AddScoped<IRentalItemRepository, RentalItemRepostitory>();
+builder.Services.AddScoped<IRentalRepository, RentalRepository>();
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 
