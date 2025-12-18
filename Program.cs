@@ -1,14 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using WinterEquipmentRentalApi;
+using WinterEquipmentRentalApi.Repostitory.Abstraction;
+using WinterEquipmentRentalApi.Repostitory.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddDbContext<RentDbContext>(x => 
     x.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConnection")));
+
+builder.Services.AddScoped<IClientRepostitory, ClientRepository>();
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+app.MapControllers();
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
