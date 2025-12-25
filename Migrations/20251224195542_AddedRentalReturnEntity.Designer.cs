@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WinterEquipmentRentalApi;
@@ -11,9 +12,11 @@ using WinterEquipmentRentalApi;
 namespace WinterEquipmentRentalApi.Migrations
 {
     [DbContext(typeof(RentDbContext))]
-    partial class RentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251224195542_AddedRentalReturnEntity")]
+    partial class AddedRentalReturnEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,8 +121,7 @@ namespace WinterEquipmentRentalApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RentalId")
-                        .IsUnique();
+                    b.HasIndex("RentalId");
 
                     b.ToTable("RentalReturns");
                 });
@@ -153,8 +155,8 @@ namespace WinterEquipmentRentalApi.Migrations
             modelBuilder.Entity("WinterEquipmentRentalApi.Models.RentalReturn", b =>
                 {
                     b.HasOne("WinterEquipmentRentalApi.Models.Rental", "Rental")
-                        .WithOne("RentalReturn")
-                        .HasForeignKey("WinterEquipmentRentalApi.Models.RentalReturn", "RentalId")
+                        .WithMany()
+                        .HasForeignKey("RentalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -164,11 +166,6 @@ namespace WinterEquipmentRentalApi.Migrations
             modelBuilder.Entity("WinterEquipmentRentalApi.Models.Client", b =>
                 {
                     b.Navigation("Rentals");
-                });
-
-            modelBuilder.Entity("WinterEquipmentRentalApi.Models.Rental", b =>
-                {
-                    b.Navigation("RentalReturn");
                 });
 #pragma warning restore 612, 618
         }

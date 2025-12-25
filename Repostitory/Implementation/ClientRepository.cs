@@ -1,10 +1,11 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using WinterEquipmentRentalApi.Models;
 using WinterEquipmentRentalApi.Repostitory.Abstraction;
 
 namespace WinterEquipmentRentalApi.Repostitory.Implementation;
 
-public class ClientRepository(RentDbContext context) : IClientRepostitory
+public class ClientRepository(RentDbContext context, IMapper mapper) : IClientRepostitory
 {
     public async Task<string> Add(Client entity)
     {
@@ -22,8 +23,7 @@ public class ClientRepository(RentDbContext context) : IClientRepostitory
 
     public async Task<Client?> GetById(string id)
     {
-        return await context.Clients.FindAsync(id)
-            ?? throw new Exception("Cannot find client");
+        return await context.Clients.FindAsync(id);
     }
 
     public async Task<Client?> GetByLastName(string lastName)
@@ -36,24 +36,29 @@ public class ClientRepository(RentDbContext context) : IClientRepostitory
         return await context.Clients.FirstAsync(x => x.PhoneNumber == phoneNumber);
     }
 
-    public async Task Remove(string id)
+    public async Task<bool> Remove(string id)
     {
-        var client = await context.Clients.FindAsync(id)
-            ?? throw new Exception("Cannot find client");
+        var client = await context.Clients.FindAsync(id);
+
+        if (client == null) return false;
 
         context.Clients.Remove(client);
-    }
-
-    public async Task Update(Client entity)
-    {
-        var client = await context.Clients.FindAsync(entity.Id)
-            ?? throw new Exception("Cannot find client");
-
-        client.Id = entity.Id;
-        client.FirstName = entity.FirstName;
-        client.LastName = entity.LastName;
-        client.PhoneNumber = entity.PhoneNumber;
 
         await context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> Update(Client entity)
+    {
+        var client = await context.Clients.FindAsync(entity.Id);
+
+        if (client == null) return false;
+
+        mapper.Map(entity, client);
+        
+        await context.SaveChangesAsync();
+
+        return true;
     }
 }

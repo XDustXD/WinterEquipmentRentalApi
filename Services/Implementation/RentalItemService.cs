@@ -1,33 +1,64 @@
+using AutoMapper;
 using WinterEquipmentRentalApi.Dto.RentalItem;
+using WinterEquipmentRentalApi.Models;
 using WinterEquipmentRentalApi.Repostitory.Abstraction;
-using WinterEquipmentRentalApi.Services.Interfaces;
+using WinterEquipmentRentalApi.Services.Abstraction;
 
 namespace WinterEquipmentRentalApi.Services.Implementation;
 
-public class RentalItemService(IRentalItemRepository itemRepo) : IRentalItemService
+public class RentalItemService(IMapper mapper, IRentalItemRepository itemRepo) : IRentalItemService
 {
-    public Task<string> Add(CreateRentalItem entity)
+    public async Task<string> Add(CreateRentalItem entity)
     {
-        throw new NotImplementedException();
+        var rentalItem = mapper.Map<CreateRentalItem, RentalItem>(entity);
+
+        return await itemRepo.Add(rentalItem);
     }
 
-    public Task<IEnumerable<GetRentalItemDto>> GetAll()
+    public async Task Remove(string id)
     {
-        throw new NotImplementedException();
+        var ok = await itemRepo.Remove(id);
+
+        if (!ok) throw new KeyNotFoundException("RentalItem not found");
     }
 
-    public Task<GetRentalItemDto?> GetById(string id)
+    public async Task<IEnumerable<GetRentalItemDto>> GetAll()
     {
-        throw new NotImplementedException();
+        var rentalItems = await itemRepo.GetAll();
+
+        var rentalItemDtos = rentalItems
+            .Select(item => mapper.Map<RentalItem, GetRentalItemDto>(item));
+
+        return rentalItemDtos;
     }
 
-    public Task<GetRentalItemDto> GetByName(string name)
+    public async Task<GetRentalItemDto> GetById(string id)
     {
-        throw new NotImplementedException();
+        var rentalItem = await itemRepo.GetById(id)
+            ?? throw new KeyNotFoundException("RentalItem not found");
+
+        var rentalItemDto = mapper.Map<RentalItem, GetRentalItemDto>(rentalItem);
+
+        return rentalItemDto;
     }
 
-    public Task Update(UpdateRentalItemDto entity)
+    public async Task<GetRentalItemDto> GetByName(string name)
     {
-        throw new NotImplementedException();
+        var rentalItem = await itemRepo.GetByName(name) 
+            ?? throw new KeyNotFoundException("RentalItem not found");
+
+        var rentalItemDto = mapper.Map<RentalItem, GetRentalItemDto>(rentalItem);
+
+        return rentalItemDto;
+    }
+
+    public async Task Update(string id, UpdateRentalItemDto entity)
+    {
+        var rentalItem = mapper.Map<UpdateRentalItemDto, RentalItem>(entity);
+        rentalItem.Id = id;
+
+        var ok = await itemRepo.Update(rentalItem);
+
+        if (!ok) throw new KeyNotFoundException("RentalItem not found");
     }
 }

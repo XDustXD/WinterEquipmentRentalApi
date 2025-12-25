@@ -136,8 +136,7 @@ public class DbInitializer
         var rentals = new List<Rental>
         {
             new() {
-                RentHours = 4,
-                Cost = 1000m,
+                PricePerHour = 1000m,
                 ClientID = clients[0].Id,
                 Client = clients[0],
                 RentalItems =
@@ -146,8 +145,7 @@ public class DbInitializer
                 }
             },
             new() {
-                RentHours = 2,
-                Cost = 600m,
+                PricePerHour = 600m,
                 ClientID = clients[1].Id,
                 Client = clients[1],
                 RentalItems =
@@ -156,8 +154,7 @@ public class DbInitializer
                 }
             },
             new() {
-                RentHours = 6,
-                Cost = 1500m,
+                PricePerHour = 1500m,
                 ClientID = clients[2].Id,
                 Client = clients[2],
                 RentalItems =
@@ -167,8 +164,7 @@ public class DbInitializer
                 }
             },
             new() {
-                RentHours = 1,
-                Cost = 300m,
+                PricePerHour = 300m,
                 ClientID = clients[3].Id,
                 Client = clients[3],
                 RentalItems =
@@ -177,8 +173,7 @@ public class DbInitializer
                 }
             },
             new() {
-                RentHours = 5,
-                Cost = 2000m,
+                PricePerHour = 2000m,
                 ClientID = clients[4].Id,
                 Client = clients[4],
                 RentalItems =

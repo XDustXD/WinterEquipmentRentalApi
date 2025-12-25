@@ -1,10 +1,11 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using WinterEquipmentRentalApi.Models;
 using WinterEquipmentRentalApi.Repostitory.Abstraction;
 
 namespace WinterEquipmentRentalApi.Repostitory.Implementation;
 
-public class RentalRepository(RentDbContext context) : IRentalRepository
+public class RentalRepository(RentDbContext context, IMapper mapper) : IRentalRepository
 {
     public async Task<string> Add(Rental entity)
     {
@@ -15,6 +16,12 @@ public class RentalRepository(RentDbContext context) : IRentalRepository
         return entity.Id;
     }
 
+    public IEnumerable<Rental?> GetActiveRentals()
+    {
+        return context.Rentals
+            .Where(r => r.RentalReturn == null);
+    }
+
     public async Task<IEnumerable<Rental>> GetAll()
     {
         return await context.Rentals.ToListAsync();
@@ -22,28 +29,49 @@ public class RentalRepository(RentDbContext context) : IRentalRepository
 
     public async Task<Rental?> GetById(string id)
     {
-        return await context.Rentals.FindAsync(id)
-                    ?? throw new Exception("Cannot find client");
+        return await context.Rentals
+            .Include(r => r.RentalItems)
+            .Include(r => r.RentalReturn)
+            .FirstOrDefaultAsync(r => r.Id == id);
     }
 
-    public async Task Remove(string id)
+    public Rental? GetRentalByClientId(string clientId)
     {
-        var item = await context.Rentals.FindAsync(id)
-            ?? throw new Exception("Cannot find client");
+        return context.Rentals.FirstOrDefault(r => r.ClientID == clientId);
+    }
+
+    public async Task<bool> IsActiveRental(string rentalId)
+    {
+        var rental = await context.Rentals.FindAsync(rentalId);
+
+        if (rental == null) return false;
+
+        return rental?.RentalReturn == null;
+    }
+
+    public async Task<bool> Remove(string id)
+    {
+        var item = await context.Rentals.FindAsync(id);
+
+        if (item == null) return false;
 
         context.Rentals.Remove(item);
-    }
-
-    public async Task Update(Rental entity)
-    {
-        var rental = await context.Rentals.FindAsync(entity.Id)
-            ?? throw new Exception("Cannot find client");
-
-        rental.Id = entity.Id;
-        rental.RentHours = entity.RentHours;
-        rental.Cost = entity.Cost;
-        rental.ClientID = entity.ClientID;
 
         await context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> Update(Rental entity)
+    {
+        var rental = await context.Rentals.FindAsync(entity.Id);
+
+        if (rental == null) return false;
+
+        mapper.Map(entity, rental);
+
+        await context.SaveChangesAsync();
+
+        return true;
     }
 }
